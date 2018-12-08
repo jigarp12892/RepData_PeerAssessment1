@@ -1,0 +1,175 @@
+---
+title: "PA1_Template"
+author: "Jigar Patel"
+date: "December 8, 2018"
+output: html_document
+---
+
+
+# Reproducible Research
+
+Loading packages :
+
+```{r echo = TRUE}
+  library("dplyr")
+  library("lubridate")
+  library("data.table")
+  library("tibble")
+  library("ggplot2")
+  library("lattice")
+```
+
+1. reading the data file using fread and tbl_df, also cleaning up the date column simultaneously using mutate
+
+```{r echo = TRUE}
+    rawdata<- tbl_df(fread("activity.csv", na.strings = "NA") ) %>%  mutate(date = ymd(date))
+```
+
+
+
+2.  filtering out NA values
+
+```{r echo = TRUE}
+    data <- filter(rawdata, steps != 'NA')
+```
+
+
+
+3. aggregating data to get total steps each day
+
+```{r echo = TRUE}
+  aggregated_totalsteps <- aggregate(x =data[c("steps","interval")], by = list(data$date),FUN = sum)
+```
+
+
+
+4. creating histogram of total steps per day using qplot
+
+```{r echo = TRUE}
+qplot(aggregated_totalsteps$steps, geom="histogram",binwidth= 5000, main = "Histogram for Steps", xlab = "Total Steps Per Day")
+```
+
+
+
+5.  mean steps
+
+```{r echo = TRUE}
+Meansteps <- mean(aggregated_totalsteps$steps)
+```
+
+
+
+6.  median steps
+
+```{r echo = TRUE}
+Mediansteps <- median(aggregated_totalsteps$steps)
+```
+
+## What is the average daily activity pattern?
+
+7. aggregrating data by interval for time series plot
+
+```{r echo = TRUE}
+Byinterval <- aggregate(data$steps, by = list(data$interval), mean)
+colnames(Byinterval)<-c("intervalID", "Mean steps")
+```
+
+
+
+8.  Time Series plot
+
+```{r echo = TRUE}
+plot(Byinterval$intervalID,Byinterval$`Mean steps`,type="l",xlab="5-Minute Interval",ylab="Mean Steps Taken",
+     
+     main="Steps during the Day")
+```
+
+9. Interval with most activity
+
+```{r echo = TRUE}
+Byinterval$intervalID[which.max(Byinterval$`Mean steps`)]
+```
+
+
+## Imputing missing values
+
+
+10. Let us re-read the raw data
+
+```{r echo = TRUE}
+data2<- tbl_df(fread("activity.csv", na.strings = "NA") ) %>%  mutate(date = ymd(date))
+```
+
+11. How many missing values
+
+```{r echo = TRUE}
+sum(!complete.cases(data2))
+```
+
+12. Replacing missing values with mean from that
+ specific interval (Ex: Missing value in interval
+ 5 replaced by mean step value in interval 5
+
+```{r echo = TRUE}
+summary <- data2[complete.cases(data2), ] %>% group_by(interval) %>% summarise(mean=mean(steps));
+incomplete <- data2[!complete.cases(data2),];
+updated <- merge(x=incomplete, y=summary, by="interval", all.x=T);
+updated$steps <- updated$mean;
+imputed <- rbind(data2[complete.cases(data2), ], select(updated, steps, date, interval))
+```
+
+13. no more NA values
+
+```{r echo = TRUE}
+sum(!complete.cases(imputed))
+```
+
+14. aggregating data2 to get total steps each day
+
+```{r echo = TRUE}
+aggregated_totalsteps2 <- aggregate(x =imputed[c("steps","interval")], by = list(imputed$date),FUN = sum)
+```
+
+
+15. creating the new histogram of total steps per day using qplot
+
+```{r echo = TRUE}
+qplot(aggregated_totalsteps2$steps, geom="histogram",binwidth= 5000, main = "Histogram for Steps", xlab = "Total Steps Per Day")
+```
+
+
+
+16. new mean steps
+
+```{r echo = TRUE}
+Meansteps2 <- mean(aggregated_totalsteps2$steps)
+```
+
+
+
+17. median steps
+
+```{r echo = TRUE}
+Mediansteps2 <- median(aggregated_totalsteps2$steps)
+```
+
+
+## Are there differences in activity patterns between weekdays and weekends?
+
+18. Creating a new column that classifies date column into weekend/weekday
+
+```{r echo = TRUE}
+imputed$day<-ifelse(as.POSIXlt(as.Date(imputed$date))$wday%%6==0,
+                         "weekend","weekday")
+
+imputed$day<-factor(imputed$day,levels=c("weekday","weekend"))
+```
+
+19. Creating a subset data contains steps per interval, then creating a two panel chart
+
+```{r echo = TRUE}
+WeekdayWeekEndData <- aggregate(steps~interval+day,imputed,mean)
+xyplot(steps~interval|factor(day), data=WeekdayWeekEndData,aspect=1/2, type="l")
+```
+
+The plots show that there is difference in movement activity between weekdays and weekends
