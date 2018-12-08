@@ -193,7 +193,8 @@ $(document).ready(function () {
 
 <div id="reproducible-research" class="section level1">
 <h1>Reproducible Research</h1>
-<p>Loading packages, data and preprocessing</p>
+<p>Loading packages :</p>
+<pre class="r"><code>  library(&quot;dplyr&quot;)</code></pre>
 <pre><code>## 
 ## Attaching package: 'dplyr'</code></pre>
 <pre><code>## The following objects are masked from 'package:stats':
@@ -202,11 +203,13 @@ $(document).ready(function () {
 <pre><code>## The following objects are masked from 'package:base':
 ## 
 ##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>  library(&quot;lubridate&quot;)</code></pre>
 <pre><code>## 
 ## Attaching package: 'lubridate'</code></pre>
 <pre><code>## The following object is masked from 'package:base':
 ## 
 ##     date</code></pre>
+<pre class="r"><code>  library(&quot;data.table&quot;)</code></pre>
 <pre><code>## 
 ## Attaching package: 'data.table'</code></pre>
 <pre><code>## The following objects are masked from 'package:lubridate':
@@ -216,6 +219,9 @@ $(document).ready(function () {
 <pre><code>## The following objects are masked from 'package:dplyr':
 ## 
 ##     between, first, last</code></pre>
+<pre class="r"><code>  library(&quot;tibble&quot;)
+  library(&quot;ggplot2&quot;)
+  library(&quot;lattice&quot;)</code></pre>
 <ol style="list-style-type: decimal">
 <li>reading the data file using fread and tbl_df, also cleaning up the date column simultaneously using mutate</li>
 </ol>
