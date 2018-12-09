@@ -2,7 +2,9 @@
 title: "PA1_Template"
 author: "Jigar Patel"
 date: "December 8, 2018"
-output: html_document
+output:
+  md_document
+ 
 ---
 
 
